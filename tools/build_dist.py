@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Rebuild dist/xin-html-ppt-skill.zip from the repository root.
 
-The archive contains only what a skills directory needs, plus the MIT
-license, both READMEs and the screenshots those READMEs reference. It is
-intentionally committed so people can download a ready-to-use package
-straight from the repository.
+The archive contains exactly the files an AI tool needs in its skills
+directory: the skill itself plus the MIT license. It mirrors what
+bin/cli.js installs, so downloading the zip and running the installer
+produce the same result. Screenshots and project docs live on GitHub
+only; they are not part of the downloadable skill package.
 """
 
 from pathlib import Path
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PREFIX = "xin-html-ppt"
 OUT = ROOT / "dist" / "xin-html-ppt-skill.zip"
 
+# Keep in sync with the skill files copied by bin/cli.js.
 INCLUDE = [
     "SKILL.md",
     "assets/deck-template.html",
@@ -25,32 +27,21 @@ INCLUDE = [
     "scripts/new_deck.py",
     "scripts/check_deck.py",
     "LICENSE",
-    "README.md",
-    "README.en.md",
-    "CONTRIBUTING.md",
-    "CHANGELOG.md",
-    "examples/outline.md",
 ]
 
 
 def main() -> None:
-    include = list(INCLUDE)
-    shots = ROOT / "docs" / "images"
-    if shots.is_dir():
-        include += [p.relative_to(ROOT).as_posix()
-                    for p in sorted(shots.glob("*.png"))]
-
-    missing = [rel for rel in include if not (ROOT / rel).is_file()]
+    missing = [rel for rel in INCLUDE if not (ROOT / rel).is_file()]
     if missing:
         raise SystemExit("Missing required files: " + ", ".join(missing))
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as archive:
-        for rel in include:
+        for rel in INCLUDE:
             archive.write(ROOT / rel, f"{PREFIX}/{rel}")
 
     print(f"Wrote {OUT.relative_to(ROOT).as_posix()} "
-          f"({OUT.stat().st_size} bytes, {len(include)} files)")
+          f"({OUT.stat().st_size} bytes, {len(INCLUDE)} files)")
 
 
 if __name__ == "__main__":

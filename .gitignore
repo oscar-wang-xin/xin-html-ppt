@@ -30,25 +30,14 @@ test-results/
 coverage/
 
 # ---------- Generated decks, local examples & previews ----------
-# NOTE: assets/deck-template.html is source code. Never ignore *.html globally.
+# assets/deck-template.html is source code. Never ignore *.html globally.
+# Local write-ups and drafts belong under /outputs/ (ignored above).
 /html-ppt-*.html
 /output/
 /outputs/
 /examples/*.html
 *_preview.png
-*预览*.png
 /screenshots/
-
-# ---------- WeChat / marketing content (NOT part of this open-source repo) ----------
-*公众号文章*
-*贴图文章*
-*发布稿*
-*推广物料*
-*推广方案*
-*朋友圈*
-/wechat/
-/marketing/
-/公众号/
 
 # ---------- Local notes, private workspace data, secrets ----------
 .workbuddy/
@@ -59,14 +48,8 @@ coverage/
 *_notes.md
 
 # ---------- Scratch scripts & local backup archives ----------
+# The archive in dist/ is a deliberate, downloadable distribution asset.
 /_*
 *.zip
-# The archive in dist/ is a deliberate, downloadable distribution asset.
 !dist/
 !dist/xin-html-ppt-skill.zip
-
-# ---------- README screenshots (deliberately committed) ----------
-# Only the curated figures in docs/images ship. Ad-hoc captures stay ignored.
-!docs/
-!docs/images/
-!docs/images/*.png

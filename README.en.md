@@ -259,12 +259,12 @@ CSS, JS, SVG and font fallbacks are all inline; images must be base64 or shipped
 ├── docs/images/                  # screenshots used on this page
 ├── tools/build_dist.py           # rebuilds the zip (maintainer, Python 3)
 ├── examples/outline.md           # sample outline (placeholder numbers)
-├── dist/xin-html-ppt-skill.zip   # ready-to-download skill archive
+├── dist/xin-html-ppt-skill.zip   # ready-to-download skill archive (skill files only)
 ├── package.json / LICENSE / README.md (Chinese) / README.en.md (English)
-└── CONTRIBUTING.md / CHANGELOG.md / .gitignore / .gitattributes
+└── CONTRIBUTING.md / .gitignore / .gitattributes
 ```
 
-Only `SKILL.md`, `assets/`, `references/`, `scripts/` and `LICENSE` are copied into an AI tool. The repository root *is* the skill root, so GitHub → Code → Download ZIP also works: `SKILL.md` sits at the top level, but the extracted folder is named `xin-html-ppt-main` — **rename it to `xin-html-ppt`**.
+Only `SKILL.md`, `assets/`, `references/`, `scripts/` and `LICENSE` are copied into an AI tool. The downloadable zip contains exactly the same ten files. The repository root *is* the skill root, so GitHub → Code → Download ZIP also works: `SKILL.md` sits at the top level, but the extracted folder is named `xin-html-ppt-main` — **rename it to `xin-html-ppt`**.
 
 ### Development (maintainers)
 
@@ -274,10 +274,10 @@ npm pack --dry-run
 node bin/cli.js --target /tmp/skills --dry-run
 python scripts/check_deck.py <deck.html>
 node scripts/check_deck.js <deck.html>
-python tools/build_dist.py          # rebuild the zip, including docs/images screenshots
+python tools/build_dist.py          # rebuild the zip (skill files only)
 ```
 
-Release: `git tag v1.0.3 && git push origin main --tags`. `npm publish --access public` is optional and enables the short `npx xin-html-ppt` form. Attach `dist/xin-html-ppt-skill.zip` to the GitHub Release for a versioned download.
+Release: `git tag v1.0.4 && git push origin main --tags`. `npm publish --access public` is optional and enables the short `npx xin-html-ppt` form. Attach `dist/xin-html-ppt-skill.zip` to the GitHub Release for a versioned download.
 
 ### Optional visual skills
 

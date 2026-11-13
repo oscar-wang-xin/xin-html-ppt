@@ -259,12 +259,12 @@ CSS、JS、SVG、字体回退全部内联，配图必须 base64 内嵌或随文�
 ├── docs/images/                  # 本页用到的效果与案例截图
 ├── tools/build_dist.py           # 重建分发 zip（维护者，需 Python 3）
 ├── examples/outline.md           # 示例大纲（数字是占位）
-├── dist/xin-html-ppt-skill.zip   # 可直接下载的技能包
+├── dist/xin-html-ppt-skill.zip   # 可直接下载的技能包（只含技能本体）
 ├── package.json / LICENSE / README.md（中文） / README.en.md（English）
-└── CONTRIBUTING.md / CHANGELOG.md / .gitignore / .gitattributes
+└── CONTRIBUTING.md / .gitignore / .gitattributes
 ```
 
-真正被复制进 AI 工具的只有 `SKILL.md`、`assets/`、`references/`、`scripts/` 和 `LICENSE`。仓库根就是技能根，GitHub → Code → Download ZIP 解压后 `SKILL.md` 在顶层；那个包解压出来的目录叫 `xin-html-ppt-main`，**记得改名成 `xin-html-ppt`**。
+真正被复制进 AI 工具的只有 `SKILL.md`、`assets/`、`references/`、`scripts/` 和 `LICENSE`，下载的技能包内容与之完全一致。仓库根就是技能根，GitHub → Code → Download ZIP 解压后 `SKILL.md` 在顶层；那个包解压出来的目录叫 `xin-html-ppt-main`，**记得改名成 `xin-html-ppt`**。
 
 ### 开发与自检（维护者）
 
@@ -274,10 +274,10 @@ npm pack --dry-run
 node bin/cli.js --target /tmp/skills --dry-run
 python scripts/check_deck.py <deck.html>
 node scripts/check_deck.js <deck.html>
-python tools/build_dist.py          # 重建分发 zip，含 docs/images 里的截图
+python tools/build_dist.py          # 重建分发 zip（只含技能本体）
 ```
 
-发布：`git tag v1.0.3 && git push origin main --tags`；`npm publish --access public` 是可选的，发了才有 `npx xin-html-ppt` 短写法；把 `dist/xin-html-ppt-skill.zip` 挂到 GitHub Release 即可提供带版本号的压缩包。
+发布：`git tag v1.0.4 && git push origin main --tags`；`npm publish --access public` 是可选的，发了才有 `npx xin-html-ppt` 短写法；把 `dist/xin-html-ppt-skill.zip` 挂到 GitHub Release 即可提供带版本号的压缩包。
 
 ### 可选的美化技能
 
