@@ -72,6 +72,58 @@ You get one `.html` file: the name you asked for, or `html-ppt-<topic>.html`. Do
 
 An existing file is never overwritten — the new one gets `-2`, `-3`, and so on.
 
+## If you use WorkBuddy: start to finish
+
+The three steps above are tool-agnostic. If WorkBuddy is what you use every day, follow this one sequence — no flags to memorise.
+
+**Install once**
+
+Click [Download the skill zip](dist/xin-html-ppt-skill.zip), extract it, and drop the whole `xin-html-ppt` folder into `~/.workbuddy/skills/` (on Windows: `C:\Users\<your-name>\.workbuddy\skills\`). Keep the folder name. Then start a fresh chat, since tools cache skills.
+
+If you prefer a command, this does the same thing in one line:
+
+```bash
+npx --yes github:oscar-wang-xin/xin-html-ppt --tool workbuddy
+```
+
+An existing install is never overwritten unless you add `--force`.
+
+**Check it landed**
+
+Start a new chat and type `@skill:xin-html-ppt`. If the skill shows up, you're done. If it doesn't, plain language still works — just ask for a PPT.
+
+**Try it on a real piece of work**
+
+Say you have a client proposal meeting next week and a requirements list in hand. Drop that file into the WorkBuddy chat (Word, Markdown, Excel or pasted text all work) and add this:
+
+```text
+Turn the requirements list I just uploaded into a 9-slide proposal for the client's business owner. Restrained style, blue-violet.
+
+1. Cover: XX system proposal, with date and presenter
+2. Where the client is stuck today: three things, no jargon
+3. Our approach: make it fit on one slide
+4. Four modules: laid out as a diagram, one line per module
+5. Delivery schedule: a four-week timeline
+6. Cost vs benefit: a bar chart comparing today with post-launch, label the numbers "illustrative"
+7. Risks and mitigations: two
+8. What we need from the client: two
+9. Closing slide
+
+Requirements: one speaker-note sentence per slide; mark the slide 6 numbers as placeholders, not real estimates; name the file xx-system-proposal.html.
+```
+
+> Those numbers are placeholders. Replace them with real, sourced estimates before this goes to a client. The same applies to every business figure in the sample deck.
+
+You get `xx-system-proposal.html`. Double-click it, open **Contents** for a thumbnail of every slide, hit **Fullscreen** to present, then **Print** to save a PDF and send it over.
+
+**Revisions don't mean starting over** — keep talking in the same chat:
+
+- "Lay the four modules out horizontally on slide 4, and cut the text"
+- "Switch the whole deck to dark blue, no gradients"
+- "Add a budget breakdown after slide 6, keep the chart plain"
+
+Each request produces a new version. Your earlier file is never overwritten — the next one gets `-2`, so you can always go back.
+
 ## The one you'll use most: a weekly status report
 
 It is Friday afternoon and you need to walk your manager through the week. You know what you did; the slow part is laying it out as something you can project. Weekly and monthly reports are probably the most common decks of all — copy the whole block below.
