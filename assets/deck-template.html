@@ -202,6 +202,17 @@ h1,h2,h3,h4{font-family:var(--font-title);margin:0;font-weight:750;letter-spacin
 .compare .col li::before{content:"—";color:var(--ink-3)}
 .compare .col.win li::before{content:"✓";color:var(--brand);font-weight:800}
 
+/* 大字结论页 / 步骤条（内置版式片段，见 references/deck-spec.md） */
+.slide--statement{justify-content:center}
+.slide--statement .statement{font-size:72px;line-height:1.25;font-weight:800;letter-spacing:-.03em;max-width:1040px}
+.slide--statement .statement em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.slide--statement .after{font-size:22px;color:var(--ink-2);margin-top:28px;max-width:900px;line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:14px;list-style:none;margin:0;padding:0;counter-reset:step}
+.steps li{position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:24px 20px 20px;counter-increment:step}
+.steps li::before{content:counter(step,decimal-leading-zero);display:block;font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--brand);margin-bottom:12px}
+.steps li b{display:block;font-size:19px;margin-bottom:8px}
+.steps li span{font-size:15px;color:var(--ink-2);line-height:1.55}
+
 /* 引用 / 图文 / 结束 */
 .quote{font-size:38px;line-height:1.55;font-weight:600;max-width:960px}
 .quote .mark{font-size:70px;color:var(--brand);line-height:.6;display:block;opacity:.5}
@@ -523,7 +534,7 @@ body.ui-hidden #progress{opacity:.35}
   <button data-export="pdf"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v7H6z"/></svg><span>导出 PDF<small>调起打印，选「另存为 PDF」</small></span></button>
 </div>
 <div class="panel" id="helpPanel" data-hook="help-panel" aria-label="快捷键说明">
-  <h4>快捷键 <small>共 9 类操作</small><button class="x" data-close="helpPanel" aria-label="关闭">×</button></h4>
+  <h4>快捷键 <small>键盘速查</small><button class="x" data-close="helpPanel" aria-label="关闭">×</button></h4>
   <div class="keys">
     <div><kbd>→</kbd>下一页</div><div><kbd>←</kbd>上一页</div>
     <div><kbd>Space</kbd>下一页</div><div><kbd>Home</kbd>第一页</div>
@@ -532,7 +543,7 @@ body.ui-hidden #progress{opacity:.35}
     <div><kbd>F</kbd>全屏</div><div><kbd>T</kbd>换主题</div>
     <div><kbd>E</kbd>导出 HTML</div><div><kbd>P</kbd>打印</div>
     <div><kbd>H</kbd>隐藏控制栏</div><div><kbd>?</kbd>本说明</div>
-    <div><kbd>1-9</kbd>跳到指定页</div><div><kbd>Esc</kbd>关闭面板</div>
+    <div><kbd>数字</kbd>跳页（可连按两位数）</div><div><kbd>Esc</kbd>关闭面板</div>
   </div>
 </div>
 <div id="toast" role="status"></div>
@@ -568,7 +579,7 @@ function safeName(s){ return String(s).replace(/[\\/:*?"<>|\r\n]/g,'').trim() ||
 function fit(){
   var pad = document.fullscreenElement ? 0 : 26;
   var s = Math.min((window.innerWidth - pad)/1280, (window.innerHeight - pad)/720, 2.2);
-  document.documentElement.style.setProperty('--scale', Math.max(.2, s));
+  document.documentElement.style.setProperty('--scale', Math.max(.05, s));
 }
 window.addEventListener('resize', function(){ fit(); if(thumbsReady) layoutThumbs(); });
 document.addEventListener('fullscreenchange', fit);
@@ -638,7 +649,10 @@ function go(n){
   $('#btnPrev').disabled = idx === 0;
   $('#btnNext').disabled = idx === total-1;
   markTOC(); renderNotes();
-  if(location.hash !== '#'+(idx+1)) history.replaceState(null,'','#'+(idx+1));
+  // file:// 或沙箱里 replaceState 可能抛 SecurityError；翻页已完成，不能让它中断交互
+  try{
+    if(location.hash !== '#'+(idx+1)) history.replaceState(null,'','#'+(idx+1));
+  }catch(e){}
 }
 function next(){ go(idx+1); }
 function prev(){ go(idx-1); }
@@ -666,6 +680,7 @@ $$('[data-close]').forEach(function(b){
   b.addEventListener('click', function(){ closePanels(); });
 });
 document.addEventListener('click', function(e){
+  if(!e.target || !e.target.closest) return;
   if(!e.target.closest('#toolbar') && !e.target.closest('.panel')) closePanels();
 });
 
@@ -687,14 +702,19 @@ $('#clock').addEventListener('click', function(){ showSec = !showSec; tickClock(
 tickClock(); setInterval(tickClock, 1000);
 
 /* ---------- 倒计时（data-hook: timer） ---------- */
-var T = { total:15*60, left:15*60, running:false, iv:null };
+var T = { total:15*60, left:15*60, running:false, iv:null, endAt:0 };
 function fmtTime(s){ s = Math.max(0,Math.round(s)); return pad(Math.floor(s/60))+':'+pad(s%60); }
 function renderTimer(){
   var big = $('#timerBig'); big.textContent = fmtTime(T.left);
   big.classList.toggle('warn', T.left <= 60);
   $('#timerToggle').textContent = T.running ? '暂停' : (T.left < T.total ? '继续' : '开始');
 }
-function stopTimer(){ T.running = false; if(T.iv){ clearInterval(T.iv); T.iv = null; } renderTimer(); }
+function stopTimer(){
+  if(T.running && T.endAt) T.left = Math.max(0, Math.ceil((T.endAt - Date.now())/1000));
+  T.running = false; T.endAt = 0;
+  if(T.iv){ clearInterval(T.iv); T.iv = null; }
+  renderTimer();
+}
 function beep(){
   try{
     var C = window.AudioContext || window.webkitAudioContext, ac = new C();
@@ -706,22 +726,27 @@ function beep(){
       g.gain.exponentialRampToValueAtTime(.001, ac.currentTime+t+.18);
       o.start(ac.currentTime+t); o.stop(ac.currentTime+t+.2);
     });
+    setTimeout(function(){ try{ ac.close(); }catch(e){} }, 1200);
   }catch(e){}
 }
 function startTimer(){
   if(T.running) return;
   if(T.left <= 0) T.left = T.total;
   T.running = true;
+  T.endAt = Date.now() + T.left*1000;   // 记截止时间，后台节流也不会少走
   T.iv = setInterval(function(){
-    T.left--;
+    T.left = Math.max(0, Math.ceil((T.endAt - Date.now())/1000));
     if(T.left <= 0){ T.left = 0; stopTimer(); beep(); toast('倒计时结束'); }
     renderTimer();
-  }, 1000);
+  }, 250);
   renderTimer();
 }
 function setMinutes(m){
-  T.total = m*60; T.left = m*60; stopTimer();
+  if(T.iv){ clearInterval(T.iv); T.iv = null; }
+  T.running = false; T.endAt = 0;
+  T.total = m*60; T.left = m*60;
   $$('#timerPresets button').forEach(function(b){ b.classList.toggle('sel', +b.dataset.m === m); });
+  renderTimer();
 }
 [5,10,15,20,30,45].forEach(function(m){
   var b = document.createElement('button'); b.textContent = m+'分'; b.dataset.m = m;
@@ -773,6 +798,12 @@ function exportHTML(){
   var tocUl = clone.querySelector('#tocList'); if(tocUl) tocUl.innerHTML = '';
   var pager = clone.querySelector('#pager'); if(pager) pager.textContent = '1 / '+total;
   var prog = clone.querySelector('#progress'); if(prog) prog.style.width = (100/total)+'%';
+  var bd = clone.querySelector('body'); if(bd) bd.classList.remove('ui-hidden','ui-peek');
+  var clk = clone.querySelector('#clock'); if(clk) clk.textContent = '00:00';
+  var tbig = clone.querySelector('#timerBig'); if(tbig){ tbig.textContent = '15:00'; tbig.classList.remove('warn'); }
+  var ttog = clone.querySelector('#timerToggle'); if(ttog) ttog.textContent = '开始';
+  var ntxt = clone.querySelector('#notesText'); if(ntxt) ntxt.textContent = '';
+  var npg = clone.querySelector('#notesPage'); if(npg) npg.textContent = '';
   var html = '<!DOCTYPE html>\n' + clone.outerHTML;
   download(html, safeName(deckTitle)+'.html', 'text/html;charset=utf-8');
   toast('已导出 HTML 单文件');
@@ -808,14 +839,27 @@ document.addEventListener('mousemove', function(e){
 });
 
 /* ---------- 键盘 ---------- */
+var keyBuf = { s:'', t:null };
+function flushKeyBuf(){
+  var n = parseInt(keyBuf.s, 10);
+  if(n > 0 && n <= total) go(n-1);
+  keyBuf.s = ''; keyBuf.t = null;
+}
 document.addEventListener('keydown', function(e){
-  if(e.target.matches('input,textarea,[contenteditable]')) return;
+  if(e.target && e.target.matches && e.target.matches('input,textarea,[contenteditable]')) return;
   var k = e.key;
   if(k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'PageDown' || k === 'j' || k === 'J'){ e.preventDefault(); next(); }
   else if(k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'k' || k === 'K'){ e.preventDefault(); prev(); }
   else if(k === 'Home'){ e.preventDefault(); go(0); }
   else if(k === 'End'){ e.preventDefault(); go(total-1); }
-  else if(/^[1-9]$/.test(k)){ go(+k-1); }
+  else if(/^[0-9]$/.test(k)){
+    // 连按数字组成两位数页码（1 2 → 第 12 页）；700ms 无后续输入就按当前数字跳
+    e.preventDefault();
+    keyBuf.s += k;
+    clearTimeout(keyBuf.t);
+    if(+keyBuf.s * 10 > total) flushKeyBuf();
+    else keyBuf.t = setTimeout(flushKeyBuf, 700);
+  }
   else if(k === 'Escape'){ closePanels(); }
   else if(k === '?' || (k === '/' && e.shiftKey)){ e.preventDefault(); togglePanel('helpPanel', $('#btnHelp')); }
   else {
@@ -848,7 +892,8 @@ function legend(series, w, y){
   series.forEach(function(s,i){
     out += '<rect x="'+x+'" y="'+(y-11)+'" width="12" height="12" rx="3" fill="'+PALETTE[i%5]+'"/>';
     out += '<text x="'+(x+19)+'" y="'+y+'" class="lg">'+esc(s.name || ('系列'+(i+1)))+'</text>';
-    x += 34 + String(s.name || '').length * 15;
+    var t = String(s.name || '');
+    x += 34 + Array.from(t).reduce(function(a,c){ return a + (c.charCodeAt(0) > 255 ? 15 : 8); }, 0);
   });
   return out;
 }
@@ -866,7 +911,7 @@ function chartBar(d,w,h){
   labels.forEach(function(lb,i){
     var cx = P.l + gw*(i+.5), full = series.length*bw + (series.length-1)*gap;
     series.forEach(function(s,si){
-      var v = (s.values||[])[i] || 0, bh = ih*v/max;
+      var v = Math.max(0, +(s.values||[])[i] || 0), bh = ih*v/max;
       var x = cx - full/2 + si*(bw+gap), y = P.t+ih-bh;
       g += '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+Math.max(0,bh)+'" rx="6" fill="'+PALETTE[si%5]+'"><title>'+esc(s.name)+' '+esc(lb)+'：'+v+esc(d.unit||'')+'</title></rect>';
       g += '<text x="'+(x+bw/2)+'" y="'+(y-9)+'" text-anchor="middle" class="val">'+v+'</text>';
@@ -888,7 +933,7 @@ function chartLine(d,w,h){
   }
   var step = labels.length > 1 ? iw/(labels.length-1) : 0;
   series.forEach(function(s,si){
-    var pts = (s.values||[]).map(function(v,i){ return [P.l+step*i, P.t+ih-ih*v/max]; });
+    var pts = (s.values||[]).map(function(v,i){ return [P.l+step*i, P.t+ih-ih*Math.max(0,+v||0)/max]; });
     if(!pts.length) return;
     var line = pts.map(function(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); }).join(' ');
     var area = 'M'+pts[0][0]+','+(P.t+ih)+' L'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' L')+' L'+pts[pts.length-1][0]+','+(P.t+ih)+' Z';
@@ -923,6 +968,20 @@ function chartDonut(d,w,h){
   });
   return g;
 }
+function chartHBar(d,w,h){
+  var labels = d.labels || [], vals = d.values || [], unit = d.unit || '';
+  var P = {l:150,r:70,t:18,b:18}, iw = w-P.l-P.r, ih = h-P.t-P.b;
+  var max = niceMax(Math.max.apply(null,[1].concat(vals.map(function(v){ return Math.max(0,+v||0); }))));
+  var row = ih/Math.max(1,labels.length), bh = Math.min(30, row*.58), g = '';
+  labels.forEach(function(lb,i){
+    var v = Math.max(0, +vals[i] || 0), len = iw*v/max, y = P.t+row*(i+.5);
+    g += '<text x="'+(P.l-14)+'" y="'+(y+5)+'" text-anchor="end" class="lg">'+esc(lb)+'</text>';
+    g += '<rect x="'+P.l+'" y="'+(y-bh/2)+'" width="'+iw+'" height="'+bh+'" rx="'+(bh/2)+'" fill="var(--line)" opacity=".55"/>';
+    g += '<rect x="'+P.l+'" y="'+(y-bh/2)+'" width="'+Math.max(0,len)+'" height="'+bh+'" rx="'+(bh/2)+'" fill="'+PALETTE[i%5]+'"><title>'+esc(lb)+'：'+vals[i]+esc(unit)+'</title></rect>';
+    g += '<text x="'+(P.l+iw+10)+'" y="'+(y+5)+'" class="val">'+vals[i]+esc(unit)+'</text>';
+  });
+  return g;
+}
 function renderCharts(){
   $$('.chart[data-chart]').forEach(function(el){
     var sc = el.querySelector('script[type="application/json"]');
@@ -931,10 +990,14 @@ function renderCharts(){
     try{ d = JSON.parse(sc.textContent); }catch(e){ el.innerHTML = '<p style="color:var(--ink-3)">图表数据格式错误</p>'; return; }
     var type = el.dataset.chart, w = 520, h = 300;
     var inner = type === 'bar' ? chartBar(d,w,h) : type === 'line' ? chartLine(d,w,h) :
+                type === 'hbar' ? chartHBar(d,w,h) :
                 type === 'donut' || type === 'pie' ? chartDonut(d,w,h) : '';
     if(!inner) return;
-    el.innerHTML = '<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+
-      esc((el.parentElement && el.parentElement.querySelector('.cap') || {}).textContent || '图表')+'">'+inner+'</svg>';
+    // 只换 SVG，不清空整个容器：JSON 数据节点必须留在文件里，导出后图表才可编辑、可重渲染
+    var old = el.querySelector('.chart-svg'); if(old) old.remove();
+    el.insertAdjacentHTML('beforeend',
+      '<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+
+      esc((el.parentElement && el.parentElement.querySelector('.cap') || {}).textContent || '图表')+'">'+inner+'</svg>');
   });
 }
 renderCharts();

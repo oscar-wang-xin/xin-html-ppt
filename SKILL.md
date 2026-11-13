@@ -1,6 +1,6 @@
 ---
 name: xin-html-ppt
-description: 把 PPT 大纲或内容文件做成一份带完整操作栏的单文件 HTML 演示文稿。当用户要求「做 PPT」「生成幻灯片」「大纲转 PPT」「HTML 格式 PPT」「演示文稿」，或给出大纲文本、Markdown、txt、docx、pdf、xlsx 内容文件要求转成演示稿时使用；也用于给已有 HTML PPT 换风格、加页、补图表。产出按指定名命名的 .html，未指定时用 html-ppt-主要内容.html 形式命名。内置前后页、带每页缩略预览的目录、演讲者备注、实时时钟、倒计时、全屏、导出、打印、隐藏控制栏九项功能，六套主题与内联 SVG 图表，零外部依赖。可按需接入 ui-ux-pro-max（视觉规范）、chart-infographic（信息图）、archify（架构图）、image-design-master（AI 配图）。触发词：做PPT、生成PPT、HTML PPT、幻灯片、大纲转PPT、演示文稿、xin-html-ppt。
+description: 把 PPT 大纲或内容文件做成一份带完整操作栏的单文件 HTML 演示文稿。当用户要求「做 PPT」「生成幻灯片」「大纲转 PPT」「HTML 格式 PPT」「演示文稿」，或给出大纲文本、Markdown、txt、docx、pdf、xlsx 内容文件要求转成演示稿时使用；也用于给已有 HTML PPT 换风格、加页、补图表。产出按指定名命名的 .html，未指定时用 html-ppt-主要内容.html 形式命名。内置前后页、带每页缩略预览的目录、演讲者备注、实时时钟、倒计时、全屏、导出、打印、隐藏控制栏九项功能，六套主题、内联 SVG 图表（含水平条形图）、大字结论页与步骤条版式，零外部依赖。可按需接入 ui-ux-pro-max（视觉规范）、chart-infographic（信息图）、archify（架构图）、image-design-master（AI 配图）。触发词：做PPT、生成PPT、HTML PPT、幻灯片、大纲转PPT、演示文稿、xin-html-ppt。
 agent_created: true
 ---
 
@@ -71,12 +71,13 @@ python "<skill-dir>/scripts/new_deck.py" --out "<输出目录>" --title "<主标
 - 标题写结论，不写名词。「检索耗时占每人每天 2.4 小时」优于「现状分析」。
 - 每页 ≤5 个要点，每点 ≤24 字；超了就拆页。
 - 数字必带单位；模板里的示例数字**必须替换或明确标注为示例**，禁止把样板数据当真实结论讲。
-- 一页最多一个图表，图表旁必配一句「所以呢」的解读。
+- 默认一页一个图表，数据对比页可放两个，每个图表旁必配一句「所以呢」的解读。
 - 长稿每 4–6 页插一张章节页换气。
 
 ### 第 5 步 · 图表与配图
 
-- 默认用模板内置的**内联 SVG 图表**（bar / line / donut），数据写在 `<script type="application/json">` 里，格式见 `references/deck-spec.md`。零依赖、随主题换色、打印不丢。
+- 默认用模板内置的**内联 SVG 图表**（bar / line / hbar / donut），数据写在 `<script type="application/json">` 里，格式见 `references/deck-spec.md`。零依赖、随主题换色、打印不丢。
+- 大字结论页（`.slide--statement`）与步骤条（`.steps`）是内置版式：一页只讲一个结论、或分步骤说明时用，片段见 `references/deck-spec.md`。
 - 需要复杂信息图、架构图、AI 氛围配图时，按 `references/visuals.md` 接入四个技能，产物一律转成 base64 内嵌。
 - 任何增强失败 → 用 `.flow` 节点、`.card` 卡片、CSS 几何装饰或内联 SVG 占位，继续交付。
 
@@ -96,8 +97,8 @@ python "<skill-dir>/scripts/check_deck.py" "<成品绝对路径>"
 |---|---|---|
 | `assets/deck-template.html` | 完整可运行模板，含全部交互与打印样式 | 第 3 步由脚本复制；只在要改控制栏逻辑时通读 |
 | `references/deck-spec.md` | 版式片段库、图表 JSON、命名细则、内容密度、data-hook 清单 | 第 4、5 步 |
-| `references/styles.md` | 六套主题变量、自定义主题、ui-ux-pro-max 接入 | 第 2 步 |
-| `references/visuals.md` | 四个美化/配图技能接入、内嵌方式、降级策略 | 第 5 步 |
+| `references/styles.md` | 六套主题变量、自定义主题、ui-ux-pro-max 接入、视觉完成度自检 | 第 2 步、交付前 |
+| `references/visuals.md` | 美化技能接入与盘点、内嵌方式、降级策略 | 第 5 步 |
 | `scripts/new_deck.py` | 初始化、命名、防覆盖（主实现） | 第 3 步 |
 | `scripts/check_deck.py` | 交付前 24 项验收（主实现） | 第 6 步 |
 | `scripts/new_deck.js` / `check_deck.js` | 与上等价的 Node 兜底，零依赖 | 没有 Python 时 |
@@ -119,4 +120,6 @@ python "<skill-dir>/scripts/check_deck.py" "<成品绝对路径>"
 - **不要把模板示例当交付。** 那 10 页是样板，必须整段替换。
 - **打印前关面板。** 打印按钮已自动关；`@media print` 会把所有页展开成一页一张、隐藏全部 UI。
 - **中文字体**：只用系统字体回退链，不加载 Web Font。
+- **标题特殊字符交给脚本**：`new_deck` 会转义 `& < >` 和花括号，别手工再改一遍 `<title>`，也别把 `{{...}}` 留在正文里。
+- **图表数据节点别删**：`renderCharts` 会保留 `<script type="application/json">`，导出 HTML 后仍可改数据重渲染；只换 SVG 不清空容器。
 - **Windows 路径**：调 python/node 一律用 `C:/...`、`D:/...` 形式的绝对路径，不要把 Git Bash 的 `/c/...`、`/d/...` 喂给原生程序。

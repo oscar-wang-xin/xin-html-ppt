@@ -61,7 +61,7 @@ const HELP = [
   '',
   'Options:',
   '  --target <dir>   Install into <dir>/xin-html-ppt (custom skills root)',
-  '--tool <id>      Only for: workbuddy, copilot, claude (comma-separated)',
+    '--tool <id>      Only for: workbuddy, copilot, claude (comma-separated)',
   '  --all            Install for every supported tool, creating dirs if needed',
   '  --force          Replace an existing installation',
   '  --dry-run        Show what would happen without writing anything',
@@ -81,6 +81,7 @@ const HELP = [
   '',
   'Examples:',
   '  npx --yes github:oscar-wang-xin/xin-html-ppt',
+  '  npx --yes github:oscar-wang-xin/xin-html-ppt --tool workbuddy',
   '  npx --yes xin-html-ppt --tool copilot',
   '  npx --yes xin-html-ppt --tool claude',
   '  node bin/cli.js --target ~/my-agent/skills --force',
@@ -210,7 +211,7 @@ function installTo(tool, opts) {
     return 'dry';
   }
 
-  if (exists) fs.rmSync(dest, { recursive: true, force: true });
+  // 逐文件覆盖，不整目录删除：技能目录里可能有用户自己的笔记或旧版文件
   fs.mkdirSync(dest, { recursive: true });
 
   for (const entry of SKILL_ENTRIES) {
@@ -225,7 +226,8 @@ function installTo(tool, opts) {
   const license = path.join(PKG_ROOT, 'LICENSE');
   if (fs.existsSync(license)) fs.copyFileSync(license, path.join(dest, 'LICENSE'));
 
-  console.log('[ok]   ' + tool.label + ' -> ' + dest);
+  console.log('[ok]   ' + tool.label + ' -> ' + dest +
+              (exists ? ' (覆盖文件，目录内其他文件保留)' : ''));
   return 'installed';
 }
 

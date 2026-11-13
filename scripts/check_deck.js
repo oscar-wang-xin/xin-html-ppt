@@ -28,7 +28,7 @@ const EXTRA_HOOKS = [
 ];
 const PANEL_HOOKS = ['toc-panel', 'notes-panel', 'timer-panel', 'export-menu', 'help-panel'];
 
-const EXTERNAL_RE = /(?:src|href)\s*=\s*["']https?:\/\/|@import\s+url\(\s*["']?https?:\/\/|<script[^>]+\bsrc\s*=|<link(?![^>]*href\s*=\s*["']data:)[^>]*\bhref\s*=/gi;
+const EXTERNAL_RE = /(?:src|href|srcset)\s*=\s*["'](?:https?:)?\/\/|@import\s+url\(\s*["']?(?:https?:)?\/\/|url\(\s*["']?(?:https?:)?\/\/|<script[^>]+\bsrc\s*=|<link(?![^>]*href\s*=\s*["']data:)[^>]*\bhref\s*=/gi;
 const PLACEHOLDER_RE = /\{\{[A-Z_]+\}\}/g;
 const CHART_JSON_RE = /<script[^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/gi;
 const SLIDE_RE = /<section[^>]*class=["'][^"']*\bslide\b[^"']*["'][^>]*>/gi;
@@ -110,10 +110,13 @@ function check(filePath) {
   const titled = (region.match(/data-title=/g) || []).length;
   add('目录标题 data-title', titled >= slideTags.length,
       slideTags.length ? titled + '/' + slideTags.length + ' 页有标题' : '');
-  const noted = (region.match(/data-notes=/g) || []).length;
-  add('演讲备注 data-notes', noted >= slideTags.length,
-      slideTags.length ? noted + '/' + slideTags.length + ' 页有备注' : '');
-  add('首页激活', /class=["'][^"']*slide[^"']*active/.test(region), '');
+  const notes = Array.from(region.matchAll(/data-notes=["']([^"']*)["']/g), m => m[1]);
+  const emptyNotes = notes.slice(0, slideTags.length).filter(v => !v.trim()).length;
+  add('演讲备注 data-notes', notes.length >= slideTags.length && emptyNotes === 0,
+      slideTags.length ? notes.length + '/' + slideTags.length + ' 页有备注，' + emptyNotes + ' 页为空' : '');
+  const firstClass = /<section[^>]*class=["']([^"']*)["']/.exec(region);
+  const firstOk = !!firstClass && /\bslide\b/.test(firstClass[1]) && /\bactive\b/.test(firstClass[1]);
+  add('首页激活', firstOk, '');
 
   add('等比缩放', html.indexOf('function fit()') > -1 || html.indexOf('function fit (') > -1, '');
   add('内联图表引擎', html.indexOf('renderCharts') > -1, '');
@@ -155,7 +158,9 @@ function check(filePath) {
   add('图表 JSON 合法', badJson.length === 0,
       badJson.length ? badJson.join('；') : blocks.length + ' 个数据块');
 
-  const demoMarks = ['XIN-HTML-PPT · DEMO', '示例演示', 'DEMO DECK'];
+  const demoMarks = ['XIN-HTML-PPT · DEMO', '示例演示', 'DEMO DECK',
+                     '今天讲三件事', '四个数字把问题钉死', '先让它找得到',
+                     '按 → 翻页 · 按 ? 查看全部快捷键'];
   const hit = demoMarks.filter(m => html.indexOf(m) > -1);
   if (hit.length) warn('模板示例残留', '疑似未替换示例内容: ' + hit.join('、'));
   if (/\bTODO\b|占位图片路径|__IMAGE_URI__/.test(html)) {

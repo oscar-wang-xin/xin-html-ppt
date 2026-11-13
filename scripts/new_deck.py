@@ -9,6 +9,7 @@
                      [--name "<指定文件名.html>"] [--force]
 """
 import argparse
+import html as html_lib
 import json
 import re
 import sys
@@ -31,6 +32,13 @@ def slug(title):
     s = re.sub(r"[\\/:*?\"<>|\r\n\t,，。；;：:!！?？、]", "", s)
     s = re.sub(r"\s+", "-", s.strip()).strip("-")
     return s[:12] if s else "演示文稿"
+
+
+def sanitize_name(name):
+    """只取文件名，别让 --name 里的路径逃出输出目录。"""
+    name = Path(str(name).replace("\\", "/")).name
+    name = re.sub(r"[<>:\"|?*\x00-\x1f]", "", name).strip().strip(".")
+    return name or "html-ppt-演示文稿.html"
 
 
 def pick_path(out_dir, name, force):
@@ -57,7 +65,7 @@ def main():
     out_dir = Path(args.out).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    name = args.name or ("html-ppt-%s.html" % slug(args.title))
+    name = sanitize_name(args.name) if args.name else ("html-ppt-%s.html" % slug(args.title))
     if not name.lower().endswith((".html", ".htm")):
         name += ".html"
 
@@ -68,8 +76,14 @@ def main():
 
     target = pick_path(out_dir, name, args.force)
     html = template.read_text(encoding="utf-8")
-    html = html.replace("{{DECK_TITLE}}", args.title).replace("{{DECK_SUBTITLE}}", args.subtitle)
-    target.write_text(html, encoding="utf-8")
+    # 先转义再一次性替换：标题里的 & < > 不破坏页面，含 {{DECK_SUBTITLE}} 也不会被二次替换
+    # 花括号也转成实体：用户标题里写 {{...}} 时，不能被当模板占位符、也不该触发验收误报
+    vals = {"TITLE": html_lib.escape(args.title, quote=True).replace("{", "&#123;"),
+            "SUBTITLE": html_lib.escape(args.subtitle, quote=True).replace("{", "&#123;")}
+    html = re.sub(r"\{\{DECK_(TITLE|SUBTITLE)\}\}", lambda m: vals[m.group(1)], html)
+    # 固定 LF：Windows 上 write_text 默认写成 CRLF，会与 Node 版产出不一致
+    with open(target, "w", encoding="utf-8", newline="") as f:
+        f.write(html)
 
     result = {
         "ok": True,

@@ -90,6 +90,25 @@
 </div>
 ```
 
+### 大字结论页（一页只讲一句）
+```html
+<section class="slide slide--statement" data-title="核心结论" data-notes="停一下，让听众把这句话读完">
+  <div class="statement">检索耗时占每人每天 <em>2.4 小时</em></div>
+  <div class="after">这句话是全篇要解决的唯一问题，后面每一页都在回答它。</div>
+</section>
+```
+一页只用一次，别和卡片、图表混排；`<em>` 只给最关键的那个词上渐变。
+
+### 步骤条（三到五步）
+```html
+<ul class="steps">
+  <li><b>归拢存量</b><span>盘清入口，先解决找不到</span></li>
+  <li><b>定责任人</b><span>定更新节奏，解决不敢信</span></li>
+  <li><b>接检索</b><span>让知识能被找到、被引用</span></li>
+</ul>
+```
+列数按条目数自动均分；超过 5 步拆成两页，别压字号。
+
 ### 图表页（一页最多两个图表，且必配解读）
 ```html
 <div class="slide__body"><div class="grid grid-2" style="height:340px">
@@ -161,6 +180,7 @@
 |---|---|---|
 | `bar` | `labels`、`series:[{name,values}]`、可选 `unit` | `{"labels":["Q1","Q2"],"series":[{"name":"A","values":[12,18]},{"name":"B","values":[9,22]}],"unit":"万元"}` |
 | `line` | 同 `bar` | 同上 |
+| `hbar` | `labels`、`values`、可选 `unit` | `{"labels":["文档","问答","培训"],"values":[80,55,30],"unit":"%"}` |
 | `donut` / `pie` | `labels`、`values`、`unit`、可选 `center` | `{"labels":["甲","乙"],"values":[60,40],"unit":"%","center":"100%"}` |
 
 约束：
@@ -169,6 +189,8 @@
 - 只放真实数值。**没有数据时改成要点页或时间线，绝不编数字占位。**
 - JSON 里不要出现 `</script>`、`<` 等会破坏 HTML 解析的字符。
 - 图表颜色自动取 `--c1`–`--c5`，换主题会跟着变；超过 5 个系列会循环取色。
+- **不支持负值**：负值会被按 0 处理，需要表现增减改用文字要点或双向对比页。
+- `hbar` 适合排名、完成度对比；横向条自带底槽，右侧显示带单位的数值。
 - `<title>` 已内嵌在每个图形元素里，鼠标悬停有提示；打印时图形保留。
 
 ## 5. 内容密度与条理检查
@@ -201,3 +223,4 @@
 - 打印样式在 `@media print`：所有页展开成流式、每页 297mm×167mm、`page-break-after:always`、隐藏全部 UI、`print-color-adjust:exact` 保证渐变和色块不被浏览器丢掉。
 - 导出 PDF 走浏览器「打印 → 另存为 PDF」，不要试图在前端生成 PDF 库。
 - 导出 HTML 走 `documentElement.outerHTML`，因此**所有资源必须在文件内**。
+- 图表 JSON 数据节点会一直留在文件里，导出稿重新打开时 `renderCharts` 会移除旧 SVG 并按数据重建；改数据后刷新即可生效。

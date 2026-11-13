@@ -37,6 +37,18 @@ function slug(title) {
   return s ? Array.from(s).slice(0, 12).join('') : '演示文稿';
 }
 
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function sanitizeName(name) {
+  const base = path.basename(String(name).replace(/\\/g, '/'));
+  const clean = base.replace(/[<>:"|?*\x00-\x1f]/g, '').trim().replace(/^\.+|\.+$/g, '');
+  return clean || 'html-ppt-演示文稿.html';
+}
+
 function pickPath(outDir, name, force) {
   const first = path.join(outDir, name);
   if (force || !fs.existsSync(first)) return first;
@@ -91,7 +103,7 @@ function main() {
   const outDir = path.resolve(expandHome(opts.out));
   fs.mkdirSync(outDir, { recursive: true });
 
-  let name = opts.name || ('html-ppt-' + slug(opts.title) + '.html');
+  let name = opts.name ? sanitizeName(opts.name) : ('html-ppt-' + slug(opts.title) + '.html');
   if (!/\.(html|htm)$/i.test(name)) name += '.html';
 
   const template = path.resolve(expandHome(opts.template || DEFAULT_TEMPLATE));
@@ -101,10 +113,16 @@ function main() {
   }
 
   const target = pickPath(outDir, name, opts.force);
-  // Function replacements prevent "$&" in a user title being treated as a pattern.
+  // Escape first, then replace both placeholders in one pass: a title containing
+  // {{DECK_SUBTITLE}} must not be rewritten a second time.
+  // Braces become entities so a literal {{...}} in the title is never treated as
+  // a template placeholder (and never trips the pre-delivery check).
+  const vals = {
+    TITLE: escHtml(opts.title).replace(/\{/g, '&#123;'),
+    SUBTITLE: escHtml(opts.subtitle).replace(/\{/g, '&#123;')
+  };
   const html = fs.readFileSync(template, 'utf8')
-    .replace(/\{\{DECK_TITLE\}\}/g, () => opts.title)
-    .replace(/\{\{DECK_SUBTITLE\}\}/g, () => opts.subtitle);
+    .replace(/\{\{DECK_(TITLE|SUBTITLE)\}\}/g, (m, k) => vals[k]);
   fs.writeFileSync(target, html, 'utf8');
 
   console.log(JSON.stringify({

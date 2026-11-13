@@ -166,7 +166,7 @@ npx --yes github:oscar-wang-xin/xin-html-ppt --tool workbuddy
 - **导出 / 打印**：存成单个 HTML、导出大纲，或打印成 PDF（一页一张）。
 - **收起操作栏**：正式放映时把这一排藏起来，按 `h` 再叫出来。
 
-另外还能一键换六套配色、看进度条、用键盘快捷键。
+另外还能一键换六套配色、看进度条、用键盘快捷键（数字键连按可跳两位数页）。
 
 ![目录：每页都有缩略图，想去第几页点哪张，当前页有高亮](docs/images/02-toc.png)
 
@@ -241,7 +241,7 @@ node scripts/new_deck.js --out . --title "2026 产品路线图"
 node scripts/check_deck.js html-ppt-2026产品路线图.html
 ```
 
-`check_deck` 是交付前 24 项校验：页面结构、九项操作栏、目录缩略预览、自包含性、图表数据。
+`check_deck` 是交付前 24 项校验：页面结构、九项操作栏、目录缩略预览、自包含性、图表数据、备注非空与协议相对外链。
 
 ### 为什么坚持零外链
 
@@ -277,7 +277,7 @@ node scripts/check_deck.js <deck.html>
 python tools/build_dist.py          # 重建分发 zip（只含技能本体）
 ```
 
-发布：`git tag v1.0.4 && git push origin main --tags`；`npm publish --access public` 是可选的，发了才有 `npx xin-html-ppt` 短写法；把 `dist/xin-html-ppt-skill.zip` 挂到 GitHub Release 即可提供带版本号的压缩包。
+发布：`git tag v1.0.5 && git push origin main --tags`；`npm publish --access public` 是可选的，发了才有 `npx xin-html-ppt` 短写法；把 `dist/xin-html-ppt-skill.zip` 挂到 GitHub Release 即可提供带版本号的压缩包。
 
 ### 可选的美化技能
 

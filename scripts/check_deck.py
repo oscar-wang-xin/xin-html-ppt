@@ -37,8 +37,9 @@ EXTRA_HOOKS = [("pager", "页码"), ("progress", "进度条"),
 PANEL_HOOKS = ["toc-panel", "notes-panel", "timer-panel", "export-menu", "help-panel"]
 
 EXTERNAL_RE = re.compile(
-    r"(?:src|href)\s*=\s*[\"']https?://"
-    r"|@import\s+url\(\s*[\"']?https?://"
+    r"(?:src|href|srcset)\s*=\s*[\"'](?:https?:)?//"
+    r"|@import\s+url\(\s*[\"']?(?:https?:)?//"
+    r"|url\(\s*[\"']?(?:https?:)?//"
     r"|<script[^>]+\bsrc\s*="
     r"|<link(?![^>]*href\s*=\s*[\"']data:)[^>]*\bhref\s*=", re.I)
 PLACEHOLDER_RE = re.compile(r"\{\{[A-Z_]+\}\}")
@@ -103,10 +104,14 @@ def check(path):
     titled = len(re.findall(r"data-title=", region))
     add("目录标题 data-title", titled >= len(slide_tags),
         "%d/%d 页有标题" % (titled, len(slide_tags)) if slide_tags else "")
-    noted = len(re.findall(r"data-notes=", region))
-    add("演讲备注 data-notes", noted >= len(slide_tags),
-        "%d/%d 页有备注" % (noted, len(slide_tags)) if slide_tags else "")
-    add("首页激活", bool(re.search(r"class=[\"'][^\"']*slide[^\"']*active", region)), "")
+    notes = re.findall(r"data-notes=[\"']([^\"']*)[\"']", region)
+    empty_notes = sum(1 for v in notes[:len(slide_tags)] if not v.strip())
+    add("演讲备注 data-notes", len(notes) >= len(slide_tags) and empty_notes == 0,
+        "%d/%d 页有备注，%d 页为空" % (len(notes), len(slide_tags), empty_notes) if slide_tags else "")
+    first_class = re.search(r"<section[^>]*class=[\"']([^\"']*)[\"']", region)
+    first_ok = bool(first_class and re.search(r"\bslide\b", first_class.group(1))
+                    and re.search(r"\bactive\b", first_class.group(1)))
+    add("首页激活", first_ok, "")
 
     # 交互逻辑与打印
     add("等比缩放", "function fit()" in html or "function fit (" in html, "")
@@ -143,7 +148,9 @@ def check(path):
         "%d 个数据块" % len(blocks))
 
     # 提醒项
-    demo_marks = ["XIN-HTML-PPT · DEMO", "示例演示", "DEMO DECK"]
+    demo_marks = ["XIN-HTML-PPT · DEMO", "示例演示", "DEMO DECK",
+                  "今天讲三件事", "四个数字把问题钉死", "先让它找得到",
+                  "按 → 翻页 · 按 ? 查看全部快捷键"]
     hit = [m for m in demo_marks if m in html]
     if hit:
         warn("模板示例残留", "疑似未替换示例内容: %s" % "、".join(hit))

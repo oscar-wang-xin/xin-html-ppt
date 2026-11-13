@@ -166,7 +166,7 @@ For a different occasion, just swap a few words in that prompt:
 - **Export / print:** save a standalone HTML, export the outline, or print to PDF (one slide per page).
 - **Hide the control bar:** tuck it away during a real presentation; press `h` to bring it back.
 
-Also included: six colour themes with one-click switching, a progress bar, keyboard shortcuts and slide deep links via the URL hash.
+Also included: six colour themes with one-click switching, a progress bar, keyboard shortcuts (two-digit page jumps), and slide deep links via the URL hash.
 
 ![Contents: a thumbnail for every slide, with the current one highlighted](docs/images/02-toc.png)
 
@@ -241,7 +241,7 @@ node scripts/new_deck.js --out . --title "2026 Product Roadmap"
 node scripts/check_deck.js html-ppt-2026产品路线图.html
 ```
 
-`check_deck` is the 24-point pre-delivery check: slide structure, all nine control-bar hooks, contents thumbnails, self-containment and chart data.
+`check_deck` is the 24-point pre-delivery check: slide structure, all nine control-bar hooks, contents thumbnails, self-containment, chart data, non-empty notes and protocol-relative URLs.
 
 ### Why zero external references
 
@@ -277,7 +277,7 @@ node scripts/check_deck.js <deck.html>
 python tools/build_dist.py          # rebuild the zip (skill files only)
 ```
 
-Release: `git tag v1.0.4 && git push origin main --tags`. `npm publish --access public` is optional and enables the short `npx xin-html-ppt` form. Attach `dist/xin-html-ppt-skill.zip` to the GitHub Release for a versioned download.
+Release: `git tag v1.0.5 && git push origin main --tags`. `npm publish --access public` is optional and enables the short `npx xin-html-ppt` form. Attach `dist/xin-html-ppt-skill.zip` to the GitHub Release for a versioned download.
 
 ### Optional visual skills
 
