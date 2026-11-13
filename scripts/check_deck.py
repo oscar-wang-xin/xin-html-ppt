@@ -114,6 +114,7 @@ def check(path):
     add("主题系统", "data-theme=" in html and len(re.findall(r"html\[data-theme=", html)) >= 2, "")
     add("打印样式", "@media print" in html and "page-break-after" in html, "")
     add("导出 HTML 逻辑", "function exportHTML()" in html, "")
+    add("目录缩略预览", "function buildThumbs()" in html and ".toc-thumb" in html, "")
     add("导出大纲逻辑", "function exportMD()" in html, "")
     add("键盘导航", "keydown" in html and "ArrowRight" in html, "")
     add("URL 深链", "location.hash" in html, "")

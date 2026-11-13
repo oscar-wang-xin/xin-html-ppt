@@ -47,7 +47,7 @@
 </section>
 ```
 
-### 目录（静态版；操作栏「目录」按钮另有一份自动生成的）
+### 目录（静态版；操作栏「目录」按钮另有一份自动生成的，且带每页缩略预览）
 ```html
 <div class="slide__body"><ul class="agenda">
   <li><span>01</span>第一章标题</li>
@@ -191,7 +191,9 @@
 
 面板：`toc-panel`、`notes-panel`、`timer-panel`、`export-menu`、`help-panel`。
 
-结构标记：`SLIDES:START` / `SLIDES:END`、`@media print`、`renderCharts`、`data-theme`、`data-chart`。
+目录缩略图：`buildTOC()` 建条目，`buildThumbs()` 在首次打开目录时懒生成每页缩略图——克隆真实页面 DOM 后按容器宽度等比缩放，颜色走 CSS 变量所以换主题自动跟随；`.toc-thumb` 是样式钩子。导出 HTML 时会清空 `#tocList`，避免页面副本被写进导出文件；导出文件打开后目录会自己重建。缩略图不进打印输出（`toc-panel` 在 `@media print` 里已隐藏）。
+
+结构标记：`SLIDES:START` / `SLIDES:END`、`@media print`、`renderCharts`、`buildThumbs`、`.toc-thumb`、`data-theme`、`data-chart`。
 
 ## 7. 缩放与打印约定
 

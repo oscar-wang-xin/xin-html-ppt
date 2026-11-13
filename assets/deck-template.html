@@ -248,14 +248,30 @@ body.ui-hidden #progress{opacity:.35}
 .panel h4{font-size:16px;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center}
 .panel h4 small{font-size:12px;color:var(--ink-3);font-weight:400}
 .x{width:26px;height:26px;border:0;border-radius:8px;background:var(--surface-2);color:var(--ink-2);font-size:16px;line-height:1}
-#tocPanel{left:24px;bottom:80px;width:330px;max-height:min(70vh,560px);overflow:auto}
-#tocList{list-style:none;padding:0;margin:0;display:grid;gap:4px}
-#tocList li{border-radius:10px}
-#tocList button{width:100%;text-align:left;border:0;background:transparent;color:var(--ink-2);
-  padding:10px 12px;border-radius:10px;font-size:14px;display:flex;gap:12px;align-items:center}
-#tocList button:hover{background:var(--surface-2);color:var(--ink)}
-#tocList button.cur{background:var(--soft);color:var(--brand);font-weight:700}
-#tocList i{font-style:normal;font-size:12px;color:var(--ink-3);min-width:24px;font-variant-numeric:tabular-nums}
+#tocPanel{left:24px;bottom:80px;width:560px;max-height:calc(100vh - 104px);overflow:auto;scrollbar-width:thin}
+#tocList{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#tocList li{min-width:0}
+#tocList button{display:block;width:100%;text-align:left;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--ink-2);padding:7px;border-radius:12px;
+  transition:border-color .18s ease,background .18s ease,transform .18s ease}
+#tocList button:hover{border-color:var(--brand);color:var(--ink);transform:translateY(-2px)}
+#tocList button.cur{border-color:var(--brand);background:var(--soft);color:var(--brand);font-weight:700;
+  box-shadow:0 0 0 2px var(--soft)}
+#tocList .toc-thumb{--thumb-scale:.12;position:relative;width:100%;height:85px;overflow:hidden;
+  border-radius:7px;background:var(--surface);border:1px solid var(--line)}
+/* 缩略图是真实页面的等比缩放副本：DOM 克隆 + transform，零依赖、随主题自动换色 */
+#tocList .toc-thumb .slide{position:absolute!important;left:0!important;top:0!important;right:auto!important;bottom:auto!important;
+  width:1280px!important;height:720px!important;opacity:1!important;visibility:visible!important;
+  transform:scale(var(--thumb-scale))!important;transform-origin:top left;
+  transition:none!important;z-index:1;border-radius:0;box-shadow:none;pointer-events:none}
+#tocList .toc-cap{display:flex;gap:7px;align-items:baseline;margin-top:6px;font-size:12px;line-height:1.35}
+#tocList .toc-cap i{font-style:normal;font-size:11px;color:var(--ink-3);min-width:20px;font-variant-numeric:tabular-nums;flex:none}
+#tocList .toc-cap span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:900px){
+  #tocPanel{left:16px;width:calc(100vw - 32px)}
+  #tocList{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:420px){ #tocList{grid-template-columns:1fr} }
 #notesPanel{right:24px;bottom:80px;width:390px;max-height:60vh;overflow:auto}
 #notesText{font-size:15px;line-height:1.75;color:var(--ink-2);white-space:pre-wrap}
 #notesText.empty{color:var(--ink-3);font-style:italic}
@@ -484,7 +500,7 @@ body.ui-hidden #progress{opacity:.35}
 
 <!-- 面板 -->
 <aside class="panel" id="tocPanel" data-hook="toc-panel" aria-label="目录">
-  <h4>目录 <small>点标题直接跳页</small><button class="x" data-close="tocPanel" aria-label="关闭">×</button></h4>
+  <h4>目录 <small id="tocHint">每页都有缩略图 · 点一下跳过去</small><button class="x" data-close="tocPanel" aria-label="关闭">×</button></h4>
   <ul id="tocList"></ul>
 </aside>
 <aside class="panel" id="notesPanel" data-hook="notes-panel" aria-label="演讲者备注">
@@ -526,7 +542,7 @@ body.ui-hidden #progress{opacity:.35}
 'use strict';
 var $ = function(s){ return document.querySelector(s); };
 var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
-var slides = $$('.slide');
+var slides = $$('#deck > .slide');
 var total = slides.length, idx = 0;
 var THEMES = ['aurora','ink','paper','biz','sumi','vivid'];
 var THEME_LABEL = {aurora:'浅色蓝紫',ink:'暗夜极简',paper:'暖纸刊物',biz:'商务深蓝',sumi:'国风水墨',vivid:'渐变活力'};
@@ -554,23 +570,61 @@ function fit(){
   var s = Math.min((window.innerWidth - pad)/1280, (window.innerHeight - pad)/720, 2.2);
   document.documentElement.style.setProperty('--scale', Math.max(.2, s));
 }
-window.addEventListener('resize', fit);
+window.addEventListener('resize', function(){ fit(); if(thumbsReady) layoutThumbs(); });
 document.addEventListener('fullscreenchange', fit);
 fit();
 
-/* ---------- 目录 ---------- */
+/* ---------- 目录（含每页缩略预览） ---------- */
+var thumbsReady = false;
 function buildTOC(){
-  var ul = $('#tocList'); ul.innerHTML = '';
+  var ul = $('#tocList'); ul.innerHTML = ''; thumbsReady = false;
+  var hint = $('#tocHint'); if(hint) hint.textContent = '共 '+total+' 页 · 每页缩略图 · 点一下跳过去';
   slides.forEach(function(sl, i){
     var li = document.createElement('li'), b = document.createElement('button');
-    b.innerHTML = '<i>'+pad(i+1)+'</i><span>'+esc(sl.dataset.title || ('第 '+(i+1)+' 页'))+'</span>';
-    b.setAttribute('aria-label', '跳到第 '+(i+1)+' 页');
+    b.innerHTML = '<span class="toc-cap"><i>'+pad(i+1)+'</i><span>'+
+      esc(sl.dataset.title || ('第 '+(i+1)+' 页'))+'</span></span>';
+    b.setAttribute('aria-label', '跳到第 '+(i+1)+' 页：'+(sl.dataset.title || '未命名页'));
     b.addEventListener('click', function(){ go(i); closePanels(); });
     li.appendChild(b); ul.appendChild(li);
   });
 }
+/* 缩略图 = 真实页面的 DOM 副本，按容器宽度等比缩放。
+   只在第一次打开目录时生成，之后复用；颜色全部走 CSS 变量，换主题自动跟随。 */
+function makeThumb(sl){
+  var box = document.createElement('div'); box.className = 'toc-thumb';
+  var copy = sl.cloneNode(true);
+  copy.classList.remove('active');
+  copy.removeAttribute('id'); copy.removeAttribute('data-notes');
+  copy.setAttribute('aria-hidden', 'true');
+  Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function(n){ n.removeAttribute('id'); });
+  box.appendChild(copy);
+  return box;
+}
+function layoutThumbs(){
+  $$('#tocList .toc-thumb').forEach(function(box){
+    var w = box.clientWidth || 152;
+    box.style.setProperty('--thumb-scale', String(w / 1280));
+    box.style.height = (w * 9 / 16).toFixed(2) + 'px';
+  });
+}
+function buildThumbs(){
+  if(!thumbsReady){
+    $$('#tocList > li').forEach(function(li, i){
+      var b = li.querySelector('button');
+      if(b && slides[i]) b.insertBefore(makeThumb(slides[i]), b.firstChild);
+    });
+    thumbsReady = true;
+  }
+  layoutThumbs();
+}
+function scrollCurrentToc(){
+  try{
+    var cur = $('#tocList > li > button.cur');
+    if(cur && cur.scrollIntoView) cur.scrollIntoView({block:'nearest'});
+  }catch(e){}
+}
 function markTOC(){
-  $$('#tocList button').forEach(function(b,i){ b.classList.toggle('cur', i === idx); });
+  $$('#tocList > li > button').forEach(function(b,i){ b.classList.toggle('cur', i === idx); });
 }
 
 /* ---------- 翻页 ---------- */
@@ -601,6 +655,7 @@ function togglePanel(id, btn){
   closePanels();
   if(!wasOpen){ p.classList.add('open'); if(btn) btn.classList.add('on'); }
   if(id === 'notesPanel') renderNotes();
+  if(id === 'tocPanel'){ buildThumbs(); scrollCurrentToc(); }
 }
 $('#btnToc').addEventListener('click', function(){ togglePanel('tocPanel', this); });
 $('#btnNotes').addEventListener('click', function(){ togglePanel('notesPanel', this); });
@@ -713,7 +768,9 @@ function exportHTML(){
   // 清理运行时状态，让导出文件以干净的第一页打开
   Array.prototype.forEach.call(clone.querySelectorAll('.panel.open'), function(p){ p.classList.remove('open'); });
   Array.prototype.forEach.call(clone.querySelectorAll('#toolbar .tb-btn.on'), function(b){ b.classList.remove('on'); });
-  Array.prototype.forEach.call(clone.querySelectorAll('.slide'), function(s,i){ s.classList.toggle('active', i === 0); });
+  Array.prototype.forEach.call(clone.querySelectorAll('#deck > .slide'), function(s,i){ s.classList.toggle('active', i === 0); });
+  // 缩略图是页面副本，不写进导出文件（打开后 buildTOC/buildThumbs 会按需重建）
+  var tocUl = clone.querySelector('#tocList'); if(tocUl) tocUl.innerHTML = '';
   var pager = clone.querySelector('#pager'); if(pager) pager.textContent = '1 / '+total;
   var prog = clone.querySelector('#progress'); if(prog) prog.style.width = (100/total)+'%';
   var html = '<!DOCTYPE html>\n' + clone.outerHTML;

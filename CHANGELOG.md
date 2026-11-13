@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.4] - 2026-11-13
+
+### Added
+
+- **Slide thumbnails in the Contents panel.** Every entry now shows a real, scaled-down preview of that slide (inline SVG charts included), laid out in three columns so a 10-slide deck is visible without scrolling. Thumbnails are generated on first open, follow the active theme automatically, and collapse to two / one columns on narrow screens.
+
+### Changed
+
+- `check_deck` (both Python and Node twins) now has 24 checks, with a new contents-thumbnail check.
+- Exported HTML strips thumbnail copies before writing the file; the rebuilt deck regenerates them on demand.
+- Both READMEs and `deck-spec.md` describe the new Contents panel; `docs/images/02-toc.png` refreshed.
+
 ## [1.0.3] - 2026-11-13
 
 ### Changed

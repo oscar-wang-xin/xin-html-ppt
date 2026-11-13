@@ -96,7 +96,7 @@ Requirements: one speaker-note sentence per slide; keep the chart on slide 4 pla
 
 > 80 / 65 / 95 are demo numbers — swap in your own. Every business figure in the sample deck is a placeholder; don't present it as fact.
 
-You get a file called `week-45-report.html` that opens with a double-click. Before you start, open **Contents** to jump to any slide; **Speaker notes** holds the one line you want to say on each slide, in a separate small window the audience never sees; set the **countdown** to 15 minutes and it will warn you near the end. Afterwards hit **Print** and save as PDF for a version you can file or share.
+You get a file called `week-45-report.html` that opens with a double-click. Before you start, open **Contents** to see a thumbnail of every slide and jump straight to the one you want; **Speaker notes** holds the one line you want to say on each slide, in a separate small window the audience never sees; set the **countdown** to 15 minutes and it will warn you near the end. Afterwards hit **Print** and save as PDF for a version you can file or share.
 
 For a different occasion, just swap a few words in that prompt:
 
@@ -107,7 +107,7 @@ For a different occasion, just swap a few words in that prompt:
 ## The control bar
 
 - **Previous / next:** click the arrows, or press `←` `→`.
-- **Contents:** one click lists every slide and jumps straight to any of them.
+- **Contents:** one click shows a thumbnail of every slide, with the current one highlighted; click a thumbnail to jump there.
 - **Speaker notes:** what to say on this slide, in a separate small window that stays off the projected screen.
 - **Clock and countdown:** pick 5 to 45 minutes, pause or reset, and get an alert when time is up.
 - **Fullscreen:** one click to start presenting.
@@ -116,7 +116,7 @@ For a different occasion, just swap a few words in that prompt:
 
 Also included: six colour themes with one-click switching, a progress bar, keyboard shortcuts and slide deep links via the URL hash.
 
-![Contents: jump to any slide, with the current one highlighted](docs/images/02-toc.png)
+![Contents: a thumbnail for every slide, with the current one highlighted](docs/images/02-toc.png)
 
 ![Speaker notes: prompts in a separate window, never blocking the slide](docs/images/06-notes.png)
 
@@ -189,7 +189,7 @@ node scripts/new_deck.js --out . --title "2026 Product Roadmap"
 node scripts/check_deck.js html-ppt-2026产品路线图.html
 ```
 
-`check_deck` is the 23-point pre-delivery check: slide structure, all nine control-bar hooks, self-containment and chart data.
+`check_deck` is the 24-point pre-delivery check: slide structure, all nine control-bar hooks, contents thumbnails, self-containment and chart data.
 
 ### Why zero external references
 

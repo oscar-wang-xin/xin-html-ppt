@@ -121,6 +121,7 @@ function check(filePath) {
       (html.match(/html\[data-theme=/g) || []).length >= 2, '');
   add('打印样式', html.indexOf('@media print') > -1 && html.indexOf('page-break-after') > -1, '');
   add('导出 HTML 逻辑', html.indexOf('function exportHTML()') > -1, '');
+  add('目录缩略预览', html.indexOf('function buildThumbs()') > -1 && html.indexOf('.toc-thumb') > -1, '');
   add('导出大纲逻辑', html.indexOf('function exportMD()') > -1, '');
   add('键盘导航', html.indexOf('keydown') > -1 && html.indexOf('ArrowRight') > -1, '');
   add('URL 深链', html.indexOf('location.hash') > -1, '');

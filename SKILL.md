@@ -1,6 +1,6 @@
 ---
 name: xin-html-ppt
-description: 把 PPT 大纲或内容文件做成一份带完整操作栏的单文件 HTML 演示文稿。当用户要求「做 PPT」「生成幻灯片」「大纲转 PPT」「HTML 格式 PPT」「演示文稿」，或给出大纲文本、Markdown、txt、docx、pdf、xlsx 内容文件要求转成演示稿时使用；也用于给已有 HTML PPT 换风格、加页、补图表。产出按指定名命名的 .html，未指定时用 html-ppt-主要内容.html 形式命名。内置前后页、目录、演讲者备注、实时时钟、倒计时、全屏、导出、打印、隐藏控制栏九项功能，六套主题与内联 SVG 图表，零外部依赖。可按需接入 ui-ux-pro-max（视觉规范）、chart-infographic（信息图）、archify（架构图）、image-design-master（AI 配图）。触发词：做PPT、生成PPT、HTML PPT、幻灯片、大纲转PPT、演示文稿、xin-html-ppt。
+description: 把 PPT 大纲或内容文件做成一份带完整操作栏的单文件 HTML 演示文稿。当用户要求「做 PPT」「生成幻灯片」「大纲转 PPT」「HTML 格式 PPT」「演示文稿」，或给出大纲文本、Markdown、txt、docx、pdf、xlsx 内容文件要求转成演示稿时使用；也用于给已有 HTML PPT 换风格、加页、补图表。产出按指定名命名的 .html，未指定时用 html-ppt-主要内容.html 形式命名。内置前后页、带每页缩略预览的目录、演讲者备注、实时时钟、倒计时、全屏、导出、打印、隐藏控制栏九项功能，六套主题与内联 SVG 图表，零外部依赖。可按需接入 ui-ux-pro-max（视觉规范）、chart-infographic（信息图）、archify（架构图）、image-design-master（AI 配图）。触发词：做PPT、生成PPT、HTML PPT、幻灯片、大纲转PPT、演示文稿、xin-html-ppt。
 agent_created: true
 ---
 
@@ -11,7 +11,7 @@ agent_created: true
 ## 三条铁律
 
 1. **一个文件交付。** CSS、JS、SVG 图表、字体回退全部内联。配图必须 base64 内嵌或随 HTML 同目录一起交付。禁止 CDN、外链字体、外链脚本、外链图片。
-2. **九项功能一个不少。** 前后页、目录、备注、时间、倒计时、全屏、导出、打印、隐藏控制栏。直接从模板复制，不重写控制栏逻辑。
+2. **九项功能一个不少。** 前后页、目录（每页缩略预览）、备注、时间、倒计时、全屏、导出、打印、隐藏控制栏。直接从模板复制，不重写控制栏逻辑。
 3. **美化技能是可选增强，不是依赖。** ui-ux-pro-max / chart-infographic / archify / image-design-master 任何一个调不通，立即降级到内置主题与内联 SVG，不留外链死图、不中断交付、不向用户报「做不了」。
 
 ## 何时使用
@@ -62,7 +62,7 @@ python "<skill-dir>/scripts/new_deck.py" --out "<输出目录>" --title "<主标
 </section>
 ```
 
-- `data-title` 进目录抽屉，`data-notes` 进备注抽屉。**备注必填**，没有补充就写「本页按稿讲，不展开」。
+- `data-title` 进目录抽屉（每页缩略图由页面 DOM 自动生成，不用另配），`data-notes` 进备注抽屉。**备注必填**，没有补充就写「本页按稿讲，不展开」。
 - 版式片段从 `references/deck-spec.md` 复制，改文字即可。
 - 页码脚注 `<div class="slide__foot">` 按总页数更新，或统一省略。
 
@@ -86,9 +86,9 @@ python "<skill-dir>/scripts/new_deck.py" --out "<输出目录>" --title "<主标
 python "<skill-dir>/scripts/check_deck.py" "<成品绝对路径>"
 ```
 
-**没有 Python 时**改用 `node "<skill-dir>/scripts/check_deck.js"`，23 项验收结果逐项一致。
+**没有 Python 时**改用 `node "<skill-dir>/scripts/check_deck.js"`，24 项验收结果逐项一致。
 
-必须全部 PASS 才交付，FAIL 逐条修。然后浏览器实测：翻页、目录跳转、备注、时钟、倒计时开始/暂停/重置、全屏、导出 HTML、打印预览、隐藏控制栏、主题切换。最后 `present_files` 打开成品。
+必须全部 PASS 才交付，FAIL 逐条修。然后浏览器实测：翻页、目录缩略图与跳转、备注、时钟、倒计时开始/暂停/重置、全屏、导出 HTML、打印预览、隐藏控制栏、主题切换。最后 `present_files` 打开成品。
 
 ## 资源
 
@@ -99,13 +99,13 @@ python "<skill-dir>/scripts/check_deck.py" "<成品绝对路径>"
 | `references/styles.md` | 六套主题变量、自定义主题、ui-ux-pro-max 接入 | 第 2 步 |
 | `references/visuals.md` | 四个美化/配图技能接入、内嵌方式、降级策略 | 第 5 步 |
 | `scripts/new_deck.py` | 初始化、命名、防覆盖（主实现） | 第 3 步 |
-| `scripts/check_deck.py` | 交付前 23 项验收（主实现） | 第 6 步 |
+| `scripts/check_deck.py` | 交付前 24 项验收（主实现） | 第 6 步 |
 | `scripts/new_deck.js` / `check_deck.js` | 与上等价的 Node 兜底，零依赖 | 没有 Python 时 |
 
 ## 运行时缺失怎么办
 
 - **优先 Python 3。** `scripts/new_deck.py` / `check_deck.py` 是主实现。
-- **没有 Python 就用 Node.js >= 16。** `scripts/new_deck.js` / `check_deck.js` 是等价兜底：参数、输出 JSON、23 项验收结果逐项一致。先用 `python --version` / `node --version` 探测，哪个在就调哪个。
+- **没有 Python 就用 Node.js >= 16。** `scripts/new_deck.js` / `check_deck.js` 是等价兜底：参数、输出 JSON、24 项验收结果逐项一致。先用 `python --version` / `node --version` 探测，哪个在就调哪个。
 - **两个都没有 → 直接提示用户安装 Python 3 或 Node.js >= 16，装好再继续。** 不要手工硬扛命名与自检，也不要擅自往用户机器装运行时。WorkBuddy、Copilot 这类 agent 工具一般自带 Python 和 Node，真缺了让用户补上最省事。
 - 生成的 HTML 本身零运行时依赖，浏览器直接打开就能放；放映这件事不依赖 Python 或 Node。
 - `references/` 里第三方技能自带的 `search.py`、`search_prompts.py` 同理：没有 Python 就跳过该增强，按三条铁律降级到内置主题与内联 SVG。
