@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-11-13
+
+### Changed
+
+- **Chinese is now the primary README.** `README.md` is the Chinese guide and `README.en.md` is the English one; they link to each other. GitHub renders `README.md` on the repository home page, so visitors land on the Chinese instructions first. The old `README.zh-CN.md` was removed so there is only one Chinese copy to maintain.
+
+### Added
+
+- A concrete, copy-paste-ready example in both READMEs: a **weekly status report**, with the full prompt (8-slide outline, a bar chart, per-slide speaker notes, a chosen file name, and demo figures clearly marked as placeholders), a short walkthrough of what the generated deck does in a real meeting, and three prompt variants for a monthly retrospective, a project status sync and an internal training session.
+
+### Notes
+
+- `package.json` and `tools/build_dist.py` now reference `README.en.md`; the downloadable zip still contains both READMEs and every screenshot.
+- Version bumped to 1.0.3 in `package.json` (the CLI reads it from there at runtime).
+
 ## [1.0.2] - 2026-11-13
 
 ### Added

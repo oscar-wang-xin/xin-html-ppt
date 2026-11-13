@@ -26,7 +26,7 @@ INCLUDE = [
     "scripts/check_deck.py",
     "LICENSE",
     "README.md",
-    "README.zh-CN.md",
+    "README.en.md",
     "CONTRIBUTING.md",
     "CHANGELOG.md",
     "examples/outline.md",
