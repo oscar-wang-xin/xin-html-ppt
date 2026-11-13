@@ -5,7 +5,8 @@
  * xin-html-ppt installer
  *
  * Zero runtime dependencies. Copies the skill files into the skills directory
- * of WorkBuddy / Claude Code, or into a custom target directory.
+ * of WorkBuddy / GitHub Copilot / Claude Code, or into a custom
+ * target directory.
  *
  * Runs identically from an installed npm package (npx xin-html-ppt), from a
  * GitHub git dependency (npx --yes github:owner/repo) and from a cloned repo
@@ -28,6 +29,12 @@ const TOOLS = [
     label: 'WorkBuddy',
     home: path.join(HOME, '.workbuddy'),
     skills: path.join(HOME, '.workbuddy', 'skills')
+  },
+  {
+    id: 'copilot',
+    label: 'GitHub Copilot',
+    home: path.join(HOME, '.copilot'),
+    skills: path.join(HOME, '.copilot', 'skills')
   },
   {
     id: 'claude',
@@ -54,7 +61,7 @@ const HELP = [
   '',
   'Options:',
   '  --target <dir>   Install into <dir>/xin-html-ppt (custom skills root)',
-  '  --tool <id>      Only for: workbuddy, claude (comma-separated)',
+  '--tool <id>      Only for: workbuddy, copilot, claude (comma-separated)',
   '  --all            Install for every supported tool, creating dirs if needed',
   '  --force          Replace an existing installation',
   '  --dry-run        Show what would happen without writing anything',
@@ -64,8 +71,9 @@ const HELP = [
   '  -v, --version    Show version',
   '',
   'Skills roots:',
-  '  WorkBuddy    ~/.workbuddy/skills',
-  '  Claude Code  ~/.claude/skills',
+  '  WorkBuddy       ~/.workbuddy/skills',
+  '  GitHub Copilot  ~/.copilot/skills',
+  '  Claude Code     ~/.claude/skills',
   '',
   'With no options the installer targets every AI tool it detects, and falls',
   'back to WorkBuddy when none is found. Existing installs are never',
@@ -73,6 +81,7 @@ const HELP = [
   '',
   'Examples:',
   '  npx --yes github:oscar-wang-xin/xin-html-ppt',
+  '  npx --yes xin-html-ppt --tool copilot',
   '  npx --yes xin-html-ppt --tool claude',
   '  node bin/cli.js --target ~/my-agent/skills --force',
   '',

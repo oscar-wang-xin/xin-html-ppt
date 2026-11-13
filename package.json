@@ -1,7 +1,7 @@
 {
   "name": "xin-html-ppt",
-  "version": "1.0.1",
-  "description": "Agent skill that turns a PPT outline into a single-file, offline HTML presentation with a full control bar. Install into WorkBuddy / Claude Code with npx.",
+  "version": "1.0.2",
+  "description": "Agent skill that turns a PPT outline into a single-file, offline HTML presentation with a full control bar. Install into WorkBuddy / GitHub Copilot / Claude Code with npx.",
   "type": "commonjs",
   "bin": {
     "xin-html-ppt": "bin/cli.js"
@@ -22,6 +22,8 @@
   "keywords": [
     "workbuddy",
     "claude-code",
+    "github-copilot",
+    "copilot",
     "agent-skill",
     "html-presentation",
     "ppt",

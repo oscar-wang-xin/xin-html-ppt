@@ -64,3 +64,9 @@ coverage/
 # The archive in dist/ is a deliberate, downloadable distribution asset.
 !dist/
 !dist/xin-html-ppt-skill.zip
+
+# ---------- README screenshots (deliberately committed) ----------
+# Only the curated figures in docs/images ship. Ad-hoc captures stay ignored.
+!docs/
+!docs/images/
+!docs/images/*.png

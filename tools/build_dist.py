@@ -2,8 +2,9 @@
 """Rebuild dist/xin-html-ppt-skill.zip from the repository root.
 
 The archive contains only what a skills directory needs, plus the MIT
-license and both READMEs. It is intentionally committed so people can
-download a ready-to-use package straight from the repository.
+license, both READMEs and the screenshots those READMEs reference. It is
+intentionally committed so people can download a ready-to-use package
+straight from the repository.
 """
 
 from pathlib import Path
@@ -26,21 +27,30 @@ INCLUDE = [
     "LICENSE",
     "README.md",
     "README.zh-CN.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "examples/outline.md",
 ]
 
 
 def main() -> None:
-    missing = [rel for rel in INCLUDE if not (ROOT / rel).is_file()]
+    include = list(INCLUDE)
+    shots = ROOT / "docs" / "images"
+    if shots.is_dir():
+        include += [p.relative_to(ROOT).as_posix()
+                    for p in sorted(shots.glob("*.png"))]
+
+    missing = [rel for rel in include if not (ROOT / rel).is_file()]
     if missing:
         raise SystemExit("Missing required files: " + ", ".join(missing))
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as archive:
-        for rel in INCLUDE:
+        for rel in include:
             archive.write(ROOT / rel, f"{PREFIX}/{rel}")
 
     print(f"Wrote {OUT.relative_to(ROOT).as_posix()} "
-          f"({OUT.stat().st_size} bytes, {len(INCLUDE)} files)")
+          f"({OUT.stat().st_size} bytes, {len(include)} files)")
 
 
 if __name__ == "__main__":

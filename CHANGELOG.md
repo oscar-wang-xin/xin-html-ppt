@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2026-11-13
+
+### Added
+
+- `bin/cli.js` now supports GitHub Copilot as an install target (`~/.copilot/skills`). `--tool copilot`, `--list` and `--all` all recognise it; auto-detection covers WorkBuddy, GitHub Copilot and Claude Code.
+- Both READMEs were rewritten for people who make presentations regularly: a plain-language three-step guide, a Copilot install section (personal `~/.copilot/skills/` and project `.github/skills/`, per the VS Code Agent Skills docs), and real screenshots. All technical detail moved into a collapsible "Advanced" section.
+- `docs/images/`: 10 figures captured from the real sample deck — cover, charts, timeline, architecture, contents panel, speaker notes, countdown, dark theme, a 2x2 overview and an outline-to-deck case figure.
+- `tools/build_dist.py` now ships the screenshots and supporting docs in `dist/*.zip`, so README images and links stay valid after extraction.
+
+### Changed
+
+- `examples/outline.md` now lists the same 10 slides as the sample deck shown in the screenshots.
+- `.gitignore` explicitly allows `docs/images/*.png`.
+- Version bumped to 1.0.2 in `package.json`.
+
 ## [1.0.1] - 2026-11-13
 
 ### Fixed
