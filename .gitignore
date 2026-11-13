@@ -1,0 +1,66 @@
+# ---------- OS / editor ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+*.code-workspace
+
+# ---------- Node / npm ----------
+node_modules/
+*.tgz
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+.npm/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# ---------- Browser / test artifacts ----------
+.playwright-cli/
+playwright-report/
+test-results/
+coverage/
+
+# ---------- Generated decks, local examples & previews ----------
+# NOTE: assets/deck-template.html is source code. Never ignore *.html globally.
+/html-ppt-*.html
+/output/
+/outputs/
+/examples/*.html
+*_preview.png
+*预览*.png
+/screenshots/
+
+# ---------- WeChat / marketing content (NOT part of this open-source repo) ----------
+*公众号文章*
+*贴图文章*
+*发布稿*
+*推广物料*
+*推广方案*
+*朋友圈*
+/wechat/
+/marketing/
+/公众号/
+
+# ---------- Local notes, private workspace data, secrets ----------
+.workbuddy/
+.env
+.env.*
+!.env.example
+*.local
+*_notes.md
+
+# ---------- Scratch scripts & local backup archives ----------
+/_*
+*.zip
+# The archive in dist/ is a deliberate, downloadable distribution asset.
+!dist/
+!dist/xin-html-ppt-skill.zip

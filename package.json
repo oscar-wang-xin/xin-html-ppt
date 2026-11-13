@@ -1,0 +1,47 @@
+{
+  "name": "xin-html-ppt",
+  "version": "1.0.0",
+  "description": "Agent skill that turns a PPT outline into a single-file, offline HTML presentation with a full control bar. Install into WorkBuddy / Claude Code with npx.",
+  "type": "commonjs",
+  "bin": {
+    "xin-html-ppt": "bin/cli.js"
+  },
+  "files": [
+    "SKILL.md",
+    "assets/",
+    "references/",
+    "scripts/",
+    "bin/cli.js",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node bin/cli.js --help"
+  },
+  "keywords": [
+    "workbuddy",
+    "claude-code",
+    "agent-skill",
+    "html-presentation",
+    "ppt",
+    "slides",
+    "single-file",
+    "offline",
+    "npx",
+    "presentation"
+  ],
+  "author": "Oscar Wang (王鑫)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oscar-wang-xin/xin-html-ppt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oscar-wang-xin/xin-html-ppt/issues"
+  },
+  "homepage": "https://github.com/oscar-wang-xin/xin-html-ppt#readme",
+  "engines": {
+    "node": ">=16"
+  }
+}
