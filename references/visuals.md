@@ -60,7 +60,7 @@ node "$ARCHIFY" deliver architecture candidate.json diagram.html --quality showc
 
 流程：
 
-1. 用技能的 `scripts/search_prompts.py` 检索模板与案例，拿到完整提示词（**不要整篇读 `cases.json`**）。
+1. 用技能的 `scripts/search_prompts.py` 检索模板与案例，拿到完整提示词（**不要整篇读 `cases.json`**）。这是第三方技能自带的 Python 脚本，本机没有 Python 就跳过本节增强，按约束里的降级规则走。
 2. 按提示词调用图像生成能力产出图片文件。
 3. 图片按第 5 节转 base64 内嵌，或用同目录相对路径并**把图片一起交付**。
 
@@ -72,16 +72,24 @@ node "$ARCHIFY" deliver architecture candidate.json diagram.html --quality showc
 
 ## 5. 产物内嵌（所有外部图片的统一入口）
 
-用 Python 转 base64 并替换占位符，避免手工粘贴超长字符串：
+把图片转 base64 再替换占位符，避免手工粘贴超长字符串。**优先 Python 3：**
 
 ```python
 import base64, pathlib
-img = pathlib.Path("D:/path/to/image.png")
+img = pathlib.Path("图片路径.png")
 b64 = base64.b64encode(img.read_bytes()).decode("ascii")
 mime = "image/png"  # 按真实格式改 jpeg / webp
 uri = "data:%s;base64,%s" % (mime, b64)
 # 把 HTML 里的 __IMAGE_URI__ 替换成 uri
 ```
+
+没有 Python 时用 Node 兜底（用 npx 装的机器一定有）：
+
+```bash
+node -e "const fs=require('fs');const b=fs.readFileSync('图片路径.png').toString('base64');console.log('data:image/png;base64,'+b)" > image-uri.txt
+```
+
+两个运行时都没有 → 提示用户安装 Python 3 或 Node.js >= 16，装好再继续；**绝不写外链占位图**。
 
 落地写法：
 

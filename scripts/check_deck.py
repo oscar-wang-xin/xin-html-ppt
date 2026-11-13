@@ -67,7 +67,7 @@ def check(path):
         add("UTF-8 编码", False, "文件不是 UTF-8，浏览器中文会乱码")
         return results
 
-    add("文件大小", len(html) > 8000, "%d 字节" % len(html.encode("utf-8")))
+    add("文件大小", len(html) > 8000, "%d 字节" % path.stat().st_size)
     # 剥离 HTML 注释后再统计结构，避免文档注释里的示例代码被算成页面
     content = re.sub(r"<!--.*?-->", "", html, flags=re.S)
     # 只统计 SLIDES 区间内的页面，避免文档说明文字干扰

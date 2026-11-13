@@ -23,7 +23,7 @@ agent_created: true
 - 输出**一个 `.html` 文件**，默认落在当前工作区；用户指定输出目录时跟随。
 - 文件名优先级：**用户明确指定的名字 > `html-ppt-<主要内容>.html`**。
 - `<主要内容>` 从大纲主标题提炼 2–12 个字，去掉标点、空格、书名号与扩展名。例：《2026 产品路线图》→ `html-ppt-2026产品路线图.html`。
-- 目标文件已存在时**不覆盖**，追加 `-2`、`-3`。由 `scripts/new_deck.py` 自动处理。
+- 目标文件已存在时**不覆盖**，追加 `-2`、`-3`。由 `scripts/new_deck.py` 自动处理（无 Python 时用 `new_deck.js`）。
 - 交付时调用 `present_files` 打开成品，回复里给出绝对路径、页数、主题、用了哪些增强。
 
 ## 工作流
@@ -42,9 +42,13 @@ agent_created: true
 
 ### 第 3 步 · 初始化文件
 
+先探测运行时：`python --version`，没有再试 `node --version`。**有 Python 用 `.py`，没有 Python 用 `.js`**，两个都没有按下方「运行时缺失怎么办」提示用户安装。第 6 步沿用同一次探测结果。
+
 ```bash
 python "<skill-dir>/scripts/new_deck.py" --out "<输出目录>" --title "<主标题>" --subtitle "<副标题>" [--name "<指定文件名.html>"]
 ```
+
+**没有 Python 时**改用 `node "<skill-dir>/scripts/new_deck.js"`，参数与输出完全一致。两个运行时都没有 → 按下方「运行时缺失怎么办」提示用户安装，不手工硬扛。
 
 脚本复制 `assets/deck-template.html`、替换 `{{DECK_TITLE}}` / `{{DECK_SUBTITLE}}`、按规则命名、防覆盖，并输出成品绝对路径。
 
@@ -82,6 +86,8 @@ python "<skill-dir>/scripts/new_deck.py" --out "<输出目录>" --title "<主标
 python "<skill-dir>/scripts/check_deck.py" "<成品绝对路径>"
 ```
 
+**没有 Python 时**改用 `node "<skill-dir>/scripts/check_deck.js"`，23 项验收结果逐项一致。
+
 必须全部 PASS 才交付，FAIL 逐条修。然后浏览器实测：翻页、目录跳转、备注、时钟、倒计时开始/暂停/重置、全屏、导出 HTML、打印预览、隐藏控制栏、主题切换。最后 `present_files` 打开成品。
 
 ## 资源
@@ -92,8 +98,18 @@ python "<skill-dir>/scripts/check_deck.py" "<成品绝对路径>"
 | `references/deck-spec.md` | 版式片段库、图表 JSON、命名细则、内容密度、data-hook 清单 | 第 4、5 步 |
 | `references/styles.md` | 六套主题变量、自定义主题、ui-ux-pro-max 接入 | 第 2 步 |
 | `references/visuals.md` | 四个美化/配图技能接入、内嵌方式、降级策略 | 第 5 步 |
-| `scripts/new_deck.py` | 初始化、命名、防覆盖 | 第 3 步 |
-| `scripts/check_deck.py` | 交付前验收 | 第 6 步 |
+| `scripts/new_deck.py` | 初始化、命名、防覆盖（主实现） | 第 3 步 |
+| `scripts/check_deck.py` | 交付前 23 项验收（主实现） | 第 6 步 |
+| `scripts/new_deck.js` / `check_deck.js` | 与上等价的 Node 兜底，零依赖 | 没有 Python 时 |
+
+## 运行时缺失怎么办
+
+- **优先 Python 3。** `scripts/new_deck.py` / `check_deck.py` 是主实现。
+- **没有 Python 就用 Node.js >= 16。** `scripts/new_deck.js` / `check_deck.js` 是等价兜底：参数、输出 JSON、23 项验收结果逐项一致。先用 `python --version` / `node --version` 探测，哪个在就调哪个。
+- **两个都没有 → 直接提示用户安装 Python 3 或 Node.js >= 16，装好再继续。** 不要手工硬扛命名与自检，也不要擅自往用户机器装运行时。WorkBuddy、Copilot 这类 agent 工具一般自带 Python 和 Node，真缺了让用户补上最省事。
+- 生成的 HTML 本身零运行时依赖，浏览器直接打开就能放；放映这件事不依赖 Python 或 Node。
+- `references/` 里第三方技能自带的 `search.py`、`search_prompts.py` 同理：没有 Python 就跳过该增强，按三条铁律降级到内置主题与内联 SVG。
+- 维护者重建 `dist/xin-html-ppt-skill.zip` 用 `tools/build_dist.py`（Python 3），用户碰不到。
 
 ## 常见坑
 

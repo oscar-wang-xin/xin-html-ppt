@@ -41,7 +41,7 @@
 Glob: ~/.workbuddy/skills/**/ui-ux-pro-max/SKILL.md
 ```
 
-整体视觉方向用 `--design-system`；单点问题用 `--domain`：
+整体视觉方向用 `--design-system`；单点问题用 `--domain`。**这是第三方技能自带的 Python 脚本，不是本项目依赖；没有 Python 就跳过本节，直接用内置六套主题**：
 
 ```bash
 python "<ui-ux-pro-max>/scripts/search.py" "enterprise knowledge platform presentation light violet" --design-system

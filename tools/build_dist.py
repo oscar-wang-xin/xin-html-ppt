@@ -19,6 +19,8 @@ INCLUDE = [
     "references/deck-spec.md",
     "references/styles.md",
     "references/visuals.md",
+    "scripts/new_deck.js",
+    "scripts/check_deck.js",
     "scripts/new_deck.py",
     "scripts/check_deck.py",
     "LICENSE",

@@ -22,4 +22,5 @@
 
 ```bash
 python scripts/new_deck.py --out . --title "中小企业知识中台落地路径"
+# 没有 Python 时：node scripts/new_deck.js --out . --title "中小企业知识中台落地路径"
 ```

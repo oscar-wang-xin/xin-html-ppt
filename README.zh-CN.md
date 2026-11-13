@@ -10,9 +10,24 @@
 
 ## 这到底是什么
 
-不是一个拿来 `import` 的 JS 库，是一份 **Agent Skill**：`SKILL.md` 说明文件 + 一个 HTML 模板 + 三份参考规范 + 两个辅助脚本。AI 编程助手读到这些文件，你说一句「把这份大纲做成 PPT」，它照着做。
+不是一个拿来 `import` 的 JS 库，是一份 **Agent Skill**：`SKILL.md` 说明文件 + 一个 HTML 模板 + 三份参考规范 + Node/Python 双份辅助脚本。AI 编程助手读到这些文件，你说一句「把这份大纲做成 PPT」，它照着做。
 
 仓库里唯一可执行的是 `bin/cli.js`，职责只有一件：把技能文件复制进你那个 AI 工具的 skills 目录。不联网、不装依赖、不构建。
+
+## 运行时依赖
+
+| 场景 | 需要什么 |
+| --- | --- |
+| 用 `npx` 安装 | Node.js >= 16（npx 就是 Node 的命令）。 |
+| 下载 zip 手动安装 | 什么都不需要，复制一个文件夹。 |
+| 打开 / 放映生成的演示稿 | 任意现代浏览器。不需要 Node、不需要 Python、不需要联网。 |
+| 跑辅助脚本 | **优先 Python 3**；没有 Python 时用等价的 Node.js >= 16 兜底。 |
+| 两个运行时都没有 | AI 直接提示用户安装 Python 3 或 Node.js >= 16，装好再继续；不擅自替用户安装。 |
+| 维护者重建 `dist/*.zip` | `tools/build_dist.py` 需要 Python 3，用户永远碰不到。 |
+
+**Python 3 是主路径，`.js` 脚本是没有 Python 时的兜底。** 两套脚本保持同步，结果逐项一致。WorkBuddy、Copilot 这类 agent 工具一般自带 Python 和 Node；真两个都缺，`SKILL.md` 要求 AI 提示用户装一个，而不是自己手工硬扛。
+
+生成的 HTML 完全自包含，没有 CDN、外链字体、远程脚本。第三方美化技能自带 Python 脚本，调不通就按三条铁律降级到内置主题和内联 SVG。
 
 ## 三种拿法
 
@@ -75,11 +90,15 @@ node bin/cli.js --target ~/.workbuddy/skills
 
 输入可以是粘贴的文本、Markdown、txt、docx、pdf、xlsx。输出只有一个 `.html`：你指定的名字，或者 `html-ppt-<主题>.html`。同名文件不覆盖，自动加 `-2`、`-3`。
 
-两个脚本也能单独使：
+辅助脚本也能单独使。优先 Python 3；没有 Python 时，Node 版参数相同、输出一致：
 
 ```bash
 python scripts/new_deck.py --out . --title "2026 产品路线图"
 python scripts/check_deck.py html-ppt-2026产品路线图.html
+
+# 没有 Python 时的等价兜底
+node scripts/new_deck.js --out . --title "2026 产品路线图"
+node scripts/check_deck.js html-ppt-2026产品路线图.html
 ```
 
 ## 出来的演示稿有什么
@@ -97,9 +116,9 @@ python scripts/check_deck.py html-ppt-2026产品路线图.html
 ├── SKILL.md                      # 技能入口：frontmatter + 工作流
 ├── assets/deck-template.html     # 零依赖 10 页模板
 ├── references/                   # 版式片段、主题变量、图表与配图规范
-├── scripts/                      # new_deck.py、check_deck.py
+├── scripts/                      # new_deck.js/.py、check_deck.js/.py
 ├── bin/cli.js                    # 零依赖 npx 安装器
-├── tools/build_dist.py           # 重新生成分发 zip
+├── tools/build_dist.py           # 重新生成分发 zip（维护者，需 Python 3）
 ├── examples/outline.md           # 示例大纲（数字是占位）
 ├── dist/xin-html-ppt-skill.zip   # 可直接下载的技能包
 ├── package.json                  # npm 元数据 + bin
@@ -115,11 +134,12 @@ python scripts/check_deck.py html-ppt-2026产品路线图.html
 npm test                                  # 安装器帮助冒烟测试
 npm pack --dry-run                        # 看 npm 实际会打包哪些文件
 node bin/cli.js --target /tmp/skills --dry-run
-python tools/build_dist.py                # 重建 dist/xin-html-ppt-skill.zip
-python scripts/check_deck.py <deck.html>  # 交付前 23 项校验
+python scripts/check_deck.py <deck.html>  # 交付前 23 项校验（主实现）
+node scripts/check_deck.js <deck.html>    # 没有 Python 时的等价兜底
+python tools/build_dist.py                # 重建分发 zip（仅维护者，需 Python 3）
 ```
 
-`check_deck.py` 校验页面结构、九项操作栏钩子、自包含性和命名规则。不引入测试框架，不需要构建步骤，也不需要 lockfile。
+`check_deck.py` 校验页面结构、九项操作栏钩子、自包含性和图表数据，`check_deck.js` 是等价兜底。不引入测试框架，不需要构建步骤，也不需要 lockfile。
 
 ## 发布（维护者）
 
@@ -137,7 +157,7 @@ npm publish --access public       # 可选：发了才有 `npx xin-html-ppt` 这
 
 ## 参与贡献
 
-见 [CONTRIBUTING.md](CONTRIBUTING.md)。提 issue 和 PR 都欢迎，前提是 `SKILL.md` 的 frontmatter 合法、`check_deck.py` 全绿。
+见 [CONTRIBUTING.md](CONTRIBUTING.md)。提 issue 和 PR 都欢迎，前提是 `SKILL.md` 的 frontmatter 合法、`check_deck` 两套脚本都全绿。
 
 ## 许可
 
